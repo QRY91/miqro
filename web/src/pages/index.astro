@@ -1,0 +1,505 @@
+---
+const title = "miqro 🎤 - Micro Voice Transcription";
+const description = "Local AI voice-to-text transcription. Hands-free workflow for developers. No cloud dependencies.";
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+
+		<style>
+			:root {
+				/* Audio-focused dark theme */
+				--bg-dark: #0f0f0f;
+				--bg-card: #1a1a1a;
+				--text-primary: #f5f5f5;
+				--text-secondary: #a3a3a3;
+				--accent-purple: #7c3aed;
+				--accent-pink: #ec4899;
+				--waveform-gradient: linear-gradient(45deg, var(--accent-purple), var(--accent-pink));
+				--border-subtle: #2a2a2a;
+				--success-green: #10b981;
+			}
+
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+				background: var(--bg-dark);
+				color: var(--text-primary);
+				line-height: 1.6;
+				overflow-x: hidden;
+			}
+
+			.container {
+				max-width: 1200px;
+				margin: 0 auto;
+				padding: 0 2rem;
+			}
+
+			/* Header */
+			header {
+				padding: 2rem 0;
+				border-bottom: 1px solid var(--border-subtle);
+			}
+
+			.header-content {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			.logo {
+				font-size: 1.5rem;
+				font-weight: 600;
+				background: var(--waveform-gradient);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				background-clip: text;
+			}
+
+			.nav-links {
+				display: flex;
+				gap: 2rem;
+				list-style: none;
+			}
+
+			.nav-links a {
+				color: var(--text-secondary);
+				text-decoration: none;
+				transition: color 0.3s ease;
+			}
+
+			.nav-links a:hover {
+				color: var(--accent-purple);
+			}
+
+			/* Hero Section */
+			.hero {
+				padding: 4rem 0 6rem;
+				text-align: center;
+				position: relative;
+			}
+
+			.hero h1 {
+				font-size: 3.5rem;
+				font-weight: 700;
+				margin-bottom: 1rem;
+				background: var(--waveform-gradient);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				background-clip: text;
+			}
+
+			.hero .subtitle {
+				font-size: 1.25rem;
+				color: var(--text-secondary);
+				margin-bottom: 2rem;
+				max-width: 600px;
+				margin-left: auto;
+				margin-right: auto;
+			}
+
+			/* Waveform Animation */
+			.waveform {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 4px;
+				margin: 3rem 0;
+				height: 80px;
+			}
+
+			.wave-bar {
+				width: 6px;
+				background: var(--waveform-gradient);
+				border-radius: 3px;
+				animation: wave 1.5s ease-in-out infinite;
+			}
+
+			.wave-bar:nth-child(1) { height: 20px; animation-delay: 0s; }
+			.wave-bar:nth-child(2) { height: 40px; animation-delay: 0.1s; }
+			.wave-bar:nth-child(3) { height: 60px; animation-delay: 0.2s; }
+			.wave-bar:nth-child(4) { height: 80px; animation-delay: 0.3s; }
+			.wave-bar:nth-child(5) { height: 60px; animation-delay: 0.4s; }
+			.wave-bar:nth-child(6) { height: 40px; animation-delay: 0.5s; }
+			.wave-bar:nth-child(7) { height: 30px; animation-delay: 0.6s; }
+			.wave-bar:nth-child(8) { height: 50px; animation-delay: 0.7s; }
+			.wave-bar:nth-child(9) { height: 70px; animation-delay: 0.8s; }
+			.wave-bar:nth-child(10) { height: 45px; animation-delay: 0.9s; }
+
+			@keyframes wave {
+				0%, 100% { transform: scaleY(0.3); opacity: 0.7; }
+				50% { transform: scaleY(1); opacity: 1; }
+			}
+
+			/* Demo Section */
+			.demo {
+				background: var(--bg-card);
+				border-radius: 12px;
+				padding: 2rem;
+				margin: 3rem 0;
+				border: 1px solid var(--border-subtle);
+			}
+
+			.demo h3 {
+				color: var(--accent-purple);
+				margin-bottom: 1rem;
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			.transcription-output {
+				background: #000;
+				border-radius: 8px;
+				padding: 1.5rem;
+				font-family: 'SF Mono', Monaco, monospace;
+				font-size: 0.9rem;
+				line-height: 1.6;
+				margin: 1rem 0;
+				border-left: 4px solid var(--accent-pink);
+			}
+
+			.success-indicator {
+				color: var(--success-green);
+				font-weight: 600;
+				margin-top: 1rem;
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			/* Features Grid */
+			.features {
+				padding: 4rem 0;
+			}
+
+			.features h2 {
+				text-align: center;
+				font-size: 2.5rem;
+				margin-bottom: 3rem;
+			}
+
+			.features-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+				gap: 2rem;
+			}
+
+			.feature-card {
+				background: var(--bg-card);
+				padding: 2rem;
+				border-radius: 12px;
+				border: 1px solid var(--border-subtle);
+				transition: transform 0.3s ease, border-color 0.3s ease;
+			}
+
+			.feature-card:hover {
+				transform: translateY(-4px);
+				border-color: var(--accent-purple);
+			}
+
+			.feature-icon {
+				font-size: 2rem;
+				margin-bottom: 1rem;
+			}
+
+			.feature-card h3 {
+				color: var(--accent-purple);
+				margin-bottom: 1rem;
+			}
+
+			/* Ecosystem Section */
+			.ecosystem {
+				background: var(--bg-card);
+				padding: 3rem 0;
+				margin: 4rem 0;
+				border-radius: 16px;
+				border: 1px solid var(--border-subtle);
+			}
+
+			.ecosystem h2 {
+				text-align: center;
+				margin-bottom: 2rem;
+			}
+
+			.ecosystem-flow {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 2rem;
+				flex-wrap: wrap;
+				margin: 2rem 0;
+			}
+
+			.flow-item {
+				background: var(--bg-dark);
+				padding: 1rem 1.5rem;
+				border-radius: 8px;
+				border: 1px solid var(--border-subtle);
+				color: var(--text-secondary);
+			}
+
+			.flow-arrow {
+				color: var(--accent-pink);
+				font-size: 1.5rem;
+			}
+
+			/* Installation Section */
+			.installation {
+				padding: 3rem 0;
+				text-align: center;
+			}
+
+			.install-command {
+				background: #000;
+				border-radius: 8px;
+				padding: 1.5rem;
+				font-family: 'SF Mono', Monaco, monospace;
+				margin: 2rem 0;
+				border: 1px solid var(--border-subtle);
+				display: inline-block;
+				min-width: 400px;
+			}
+
+			.install-command code {
+				color: var(--accent-purple);
+			}
+
+			/* Footer */
+			footer {
+				border-top: 1px solid var(--border-subtle);
+				padding: 2rem 0;
+				text-align: center;
+				color: var(--text-secondary);
+			}
+
+			.footer-links {
+				display: flex;
+				justify-content: center;
+				gap: 2rem;
+				margin-bottom: 1rem;
+			}
+
+			.footer-links a {
+				color: var(--text-secondary);
+				text-decoration: none;
+				transition: color 0.3s ease;
+			}
+
+			.footer-links a:hover {
+				color: var(--accent-purple);
+			}
+
+			/* Responsive */
+			@media (max-width: 768px) {
+				.hero h1 {
+					font-size: 2.5rem;
+				}
+
+				.hero .subtitle {
+					font-size: 1.1rem;
+				}
+
+				.waveform {
+					gap: 2px;
+				}
+
+				.wave-bar {
+					width: 4px;
+				}
+
+				.install-command {
+					min-width: auto;
+					width: 100%;
+				}
+
+				.ecosystem-flow {
+					flex-direction: column;
+				}
+
+				.nav-links {
+					display: none;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<div class="container">
+				<div class="header-content">
+					<div class="logo">miqro 🎤</div>
+					<nav>
+						<ul class="nav-links">
+							<li><a href="#features">Features</a></li>
+							<li><a href="#demo">Demo</a></li>
+							<li><a href="#ecosystem">Ecosystem</a></li>
+							<li><a href="https://github.com/QRY91/miqro">GitHub</a></li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</header>
+
+		<main>
+			<section class="hero">
+				<div class="container">
+					<h1>Micro Voice Transcription</h1>
+					<p class="subtitle">
+						Local AI voice-to-text transcription. Hands-free workflow for developers.
+						Zero cloud dependencies, maximum privacy.
+					</p>
+
+					<!-- Animated Waveform -->
+					<div class="waveform">
+						<div class="wave-bar"></div>
+						<div class="wave-bar"></div>
+						<div class="wave-bar"></div>
+						<div class="wave-bar"></div>
+						<div class="wave-bar"></div>
+						<div class="wave-bar"></div>
+						<div class="wave-bar"></div>
+						<div class="wave-bar"></div>
+						<div class="wave-bar"></div>
+						<div class="wave-bar"></div>
+					</div>
+
+					<!-- Live Transcription Demo -->
+					<div class="demo" id="demo">
+						<h3>🎯 Real Transcription Output</h3>
+						<div class="transcription-output">
+							<div style="color: var(--accent-pink); margin-bottom: 1rem;">📝 Transcribed text:</div>
+							<div style="border-bottom: 1px solid var(--border-subtle); margin-bottom: 1rem; padding-bottom: 0.5rem;">====================</div>
+							<div>
+								Hello.<br>
+								So I've been doing a lot of general strategy talk today and one of these things was actually
+								starting this little thing called Micro, which is just a very small and simple script.<br>
+								It can use to do natural language processing locally using local AI and nothing more than
+								a decent microphone setup and I guess a decent computer if you want to actually, you know,
+								record stuff properly.<br>
+								But it works pretty well so far.<br>
+								I'm pretty happy.
+							</div>
+							<div style="border-top: 1px solid var(--border-subtle); margin-top: 1rem; padding-top: 0.5rem;">====================</div>
+						</div>
+						<div class="success-indicator">
+							✅ Copied to clipboard! &nbsp;&nbsp; 💾 Saved to: /tmp/voice_text_1749231727.txt
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="features" id="features">
+				<div class="container">
+					<h2>Built for Developer Workflows</h2>
+					<div class="features-grid">
+						<div class="feature-card">
+							<div class="feature-icon">🔒</div>
+							<h3>100% Local Processing</h3>
+							<p>Your voice never leaves your machine. Local AI transcription with no cloud dependencies or privacy concerns.</p>
+						</div>
+
+						<div class="feature-card">
+							<div class="feature-icon">♿</div>
+							<h3>Accessibility First</h3>
+							<p>Born from need for hands-free input due to RSI/wrist pain. Perfect for developers who need voice-driven workflows.</p>
+						</div>
+
+						<div class="feature-card">
+							<div class="feature-icon">⚡</div>
+							<h3>Instant Integration</h3>
+							<p>Automatic clipboard copying and file saving. Ready to paste into any application or development tool.</p>
+						</div>
+
+						<div class="feature-card">
+							<div class="feature-icon">🎯</div>
+							<h3>High Accuracy</h3>
+							<p>Proven results with excellent transcription quality. Perfect for technical discussions, meeting notes, and code comments.</p>
+						</div>
+
+						<div class="feature-card">
+							<div class="feature-icon">🔧</div>
+							<h3>Minimal Setup</h3>
+							<p>Simple script with minimal dependencies. Just a decent microphone and your existing development environment.</p>
+						</div>
+
+						<div class="feature-card">
+							<div class="feature-icon">🔄</div>
+							<h3>Ecosystem Ready</h3>
+							<p>Integrates seamlessly with QRY ecosystem tools for context capture, AI collaboration, and workflow automation.</p>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="ecosystem" id="ecosystem">
+				<div class="container">
+					<h2>QRY Ecosystem Integration</h2>
+					<p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
+						Voice input layer for intelligent developer workflows
+					</p>
+
+					<div class="ecosystem-flow">
+						<div class="flow-item">🎤 Voice Input</div>
+						<div class="flow-arrow">→</div>
+						<div class="flow-item">📝 miqro Transcription</div>
+						<div class="flow-arrow">→</div>
+						<div class="flow-item">🧠 uroboro Capture</div>
+						<div class="flow-arrow">→</div>
+						<div class="flow-item">🪂 wherewasi Context</div>
+						<div class="flow-arrow">→</div>
+						<div class="flow-item">🤖 AI Collaboration</div>
+					</div>
+
+					<div style="background: var(--bg-dark); border-radius: 8px; padding: 1.5rem; margin-top: 2rem; font-family: 'SF Mono', Monaco, monospace; font-size: 0.9rem;">
+						<div style="color: var(--accent-pink); margin-bottom: 0.5rem;"># Future ecosystem integration:</div>
+						<div style="color: var(--text-secondary);">miqro record | uroboro capture --db --tags "voice-input"</div>
+						<div style="color: var(--text-secondary);">miqro transcribe meeting.wav | wherewasi context --source "meeting"</div>
+						<div style="color: var(--text-secondary);">miqro process | ecosystem intelligence pipeline</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="installation">
+				<div class="container">
+					<h2>Get Started</h2>
+					<p style="color: var(--text-secondary); margin-bottom: 2rem;">
+						Simple installation and setup for immediate voice transcription
+					</p>
+
+					<div class="install-command">
+						<code>git clone https://github.com/QRY91/miqro.git</code><br>
+						<code>cd miqro</code><br>
+						<code>./voice_prompt.sh</code>
+					</div>
+
+					<p style="color: var(--text-secondary); margin-top: 1rem;">
+						Requires: Decent microphone + Local AI setup (Whisper or similar)
+					</p>
+				</div>
+			</section>
+		</main>
+
+		<footer>
+			<div class="container">
+				<div class="footer-links">
+					<a href="https://github.com/QRY91/miqro">GitHub</a>
+					<a href="https://wherewasi.dev">WhereWasI</a>
+					<a href="https://osmotic.dev">Osmotic</a>
+					<a href="https://slopsquid.com">SlopSquid</a>
+				</div>
+				<p>&copy; 2024 QRY Ecosystem - Local-first developer intelligence</p>
+			</div>
+		</footer>
+	</body>
+</html>
